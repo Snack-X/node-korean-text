@@ -47,7 +47,7 @@ describe("normalizer/KoreanNormalizer", function() {
     });
   });
 
-  describe("#normalizeCodaN", function() {
+  describe("#normalizeCodaN()", function() {
     it("should normalize coda N nouns correctly", function() {
       assert.equal(normalizeCodaN("오노딘가"), "오노디인가")
       assert.equal(normalizeCodaN("소린가"), "소리인가")
@@ -67,7 +67,7 @@ describe("normalizer/KoreanNormalizer", function() {
     });
   });
 
-  describe("#correctTypo", function() {
+  describe("#correctTypo()", function() {
     it("should correct typos", function() {
       assert.equal(correctTypo("가쟝 용기있는 사람이 머굼 되는거즤"), "가장 용기있는 사람이 먹음 되는거지")
       assert.equal(correctTypo("만듀 먹것니? 먹겄서? 먹즤?"), "만두 먹겠니? 먹겠어? 먹지?")

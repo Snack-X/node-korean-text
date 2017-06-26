@@ -50,6 +50,10 @@ function readFileByLineFromResources(filename: string): string[] {
 
 export const koreanEntityFreq = readWordFreqs("freq/entity-freq.txt.gz");
 
+export function addWordsToDictionary(pos: KoreanPos, words: string[]) {
+  words.forEach(word => koreanDictionary.get(pos).add(word));
+}
+
 export const koreanDictionary = new Map([
   [ KoreanPos.Noun,
     readWords([
@@ -83,6 +87,12 @@ export const properNouns = readWords([
   "substantives/given_names.txt", "noun/kpop.txt", "noun/bible.txt",
   "noun/pokemon.txt", "noun/congress.txt", "noun/wikipedia_title_nouns.txt"
 ]);
+
+export const nameDictionary = {
+  "family_name": readWords([ "substantives/family_names.txt" ]),
+  "given_name": readWords([ "substantives/given_names.txt" ]),
+  "full_name": readWords([ "noun/kpop.txt", "noun/foreign.txt", "noun/names.txt" ]),
+};
 
 const typoDictionary = readWordMap("typos/typos.txt");
 export const typoDictionaryByLength: Map<number, Map<string, string>> = new Map()

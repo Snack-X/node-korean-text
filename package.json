@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "twitter-text": "^1.14.6"
+  },
   "devDependencies": {
     "@types/node": "^8.0.1",
     "mocha": "^3.4.2",

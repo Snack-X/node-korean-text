@@ -50,4 +50,76 @@ export enum KoreanPos {
 
   // Functional POS
   Space, Others,
+
+  ProperNoun,
 };
+
+const OtherPoses = new Set([
+  KoreanPos.Korean, KoreanPos.Foreign, KoreanPos.Number, KoreanPos.KoreanParticle, KoreanPos.Alpha,
+  KoreanPos.Punctuation, KoreanPos.Hashtag, KoreanPos.ScreenName,
+  KoreanPos.Email, KoreanPos.URL, KoreanPos.CashTag,
+]);
+
+const shortCut: { [k: string]: KoreanPos; } = {
+  "N": KoreanPos.Noun,
+  "V": KoreanPos.Verb,
+  "J": KoreanPos.Adjective,
+  "A": KoreanPos.Adverb,
+  "D": KoreanPos.Determiner,
+  "E": KoreanPos.Exclamation,
+  "C": KoreanPos.Conjunction,
+
+  "j": KoreanPos.Josa,
+  "e": KoreanPos.Eomi,
+  "r": KoreanPos.PreEomi,
+  "m": KoreanPos.Modifier,
+  "v": KoreanPos.VerbPrefix,
+  "s": KoreanPos.Suffix,
+
+  "a": KoreanPos.Alpha,
+  "n": KoreanPos.Number,
+
+  "o": KoreanPos.Others,
+};
+
+interface KoreanPosTrie {
+  curPos: KoreanPos,
+  nextTrie: KoreanPosTrie[],
+  ending?: KoreanPos,
+};
+
+export const selfNode: KoreanPosTrie = {
+  curPos: null,
+  nextTrie: null,
+};
+
+export function buildTrie(s: string, endingPos: KoreanPos): KoreanPosTrie[] {
+  const isFinal = (rest: string): boolean => {
+    const isNextOptional = [...rest].reduce((prev, cur) => (cur === "+" || cur === "1") ? false : prev, true);
+    return rest.length === 0 || isNextOptional;
+  };
+
+  if(s.length < 2) return [];
+
+  const pos = shortCut[s[0]];
+  const rule = s[1];
+  const rest = s.length > 1 ? s.substr(2, s.length) : "";
+
+  const end = isFinal(rest) ? endingPos : null;
+
+  const restTrie = buildTrie(rest, endingPos);
+  switch(rule) {
+    case "+": return [ <KoreanPosTrie> { curPos: pos, nextTrie: [ selfNode, ...restTrie ], ending: end } ];
+    case "*": return [ <KoreanPosTrie> { curPos: pos, nextTrie: [ selfNode, ...restTrie ], ending: end }, ...restTrie ];
+    case "1": return [ <KoreanPosTrie> { curPos: pos, nextTrie: restTrie, ending: end } ];
+    case "0": return [ <KoreanPosTrie> { curPos: pos, nextTrie: restTrie, ending: end }, ...restTrie ];
+  }
+}
+
+export function getTrie(sequences: { [s: string]: KoreanPos; }): KoreanPosTrie[] {
+  return [].concat(...Object.keys(sequences).map(s => {
+    return buildTrie(s, sequences[s])
+  }));
+}
+
+const Predicates = [ KoreanPos.Verb, KoreanPos.Adjective ];

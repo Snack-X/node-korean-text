@@ -7,7 +7,7 @@ interface HangulChar {
   onset: string,
   vowel: string,
   coda: string,
-}
+};
 
 const HANGUL_BASE = 0xac00;
 const ONSET_BASE = 21 * 28;
