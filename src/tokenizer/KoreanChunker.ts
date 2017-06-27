@@ -27,8 +27,8 @@ const POS_PATTERNS = new Map([
 
 const CHUNKING_ORDER = [ KoreanPos.URL, KoreanPos.Email, KoreanPos.ScreenName, KoreanPos.Hashtag, KoreanPos.CashTag, KoreanPos.Number, KoreanPos.Korean, KoreanPos.KoreanParticle, KoreanPos.Alpha, KoreanPos.Punctuation ];
 
-function getChunks(input: string, keepSpace: boolean = false): string[] {
-  return [];  
+export function getChunks(input: string, keepSpace: boolean = false): string[] {
+  return chunk(input).map(c => c.text);
 }
 
 export function splitBySpaceKeepingSpace(s: string): string[] {
@@ -74,14 +74,17 @@ function splitChunks(text: string): ChunkMatch[] {
     const chunksMatched: ChunkMatch[] = [];
     let matchedLen = 0;
 
+    // TODO: Improve chunk splitting
+    // EXPECTED: 300위안짜리 => 300위안(Number) 짜리(Korean)
+    // ACTUAL:   300위안짜리 => 300위안(Number) 짜리(Foreign)
     CHUNKING_ORDER.forEach(pos => {
       if(matchedLen < text.length) {
-        const r = new RegExp(POS_PATTERNS.get(pos).source, "g");
+        const r = new RegExp(POS_PATTERNS.get(pos).source, "gi");
         let m: RegExpExecArray;
         
         while((m = r.exec(text)) !== null) {
           const cm = new ChunkMatch(m.index, m.index + m[0].length, m[0], pos);
-          if(chunksMatched.map(cm.disjoint).filter(r => r === false).length !== 0) {
+          if(chunksMatched.map(c => cm.disjoint(c)).filter(r => r === false).length === 0) {
             chunksMatched.push(cm);
             matchedLen += m[0].length;
           }
@@ -105,11 +108,24 @@ function fillInUnmatched(text: string, chunks: ChunkMatch[], pos: KoreanPos): Ch
       chunksWithForeign.push(cm);
     }
     else throw new Error("Non-disjoint chunk matches found.");
+
+    prevEnd = cm.end;
+  }
+  
+  if(prevEnd < text.length) {
+    chunksWithForeign.push(new ChunkMatch(prevEnd, text.length, text.substring(prevEnd, text.length), pos));
   }
 
   return chunksWithForeign;
 }
 
 export function chunk(input: string): KoreanToken[] {
-  const l = [].concat(...splitBySpaceKeepingSpace(input).map(splitChunks));
+  const l: ChunkMatch[] = [].concat(...splitBySpaceKeepingSpace(input).map(splitChunks));
+  let segStart = 0;
+  const tokens: KoreanToken[] = l.map(m => {
+    segStart = input.indexOf(m.text, segStart)
+    return new KoreanToken(m.text, m.pos, segStart, m.text.length);
+  });
+
+  return tokens;
 }

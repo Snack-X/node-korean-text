@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as zlib from "zlib";
 import { KoreanPos } from "./KoreanPos";
+import { conjugatePredicated } from "./KoreanConjugation";
 
 const DATA_PATH: string = path.join(__dirname, "../../data");
 
@@ -64,8 +65,8 @@ export const koreanDictionary = new Map([
       "substantives/given_names.txt", "noun/kpop.txt", "noun/bible.txt",
       "noun/pokemon.txt", "noun/congress.txt", "noun/wikipedia_title_nouns.txt"
     ]) ],
-  // [ KoreanPos.Verb, conjugatePredicatesToCharArraySet(readWordsAsSet("verb/verb.txt")) ],
-  // [ KoreanPos.Adjective, conjugatePredicatesToCharArraySet(readWordsAsSet("adjective/adjective.txt"), true)) ],
+  [ KoreanPos.Verb, conjugatePredicated(readWords([ "verb/verb.txt" ]), false) ],
+  [ KoreanPos.Adjective, conjugatePredicated(readWords([ "adjective/adjective.txt" ]), true) ],
   [ KoreanPos.Adverb, readWords([ "adverb/adverb.txt" ]) ],
   [ KoreanPos.Determiner, readWords([ "auxiliary/determiner.txt" ]) ],
   [ KoreanPos.Exclamation, readWords([ "auxiliary/exclamation.txt" ]) ],

@@ -18,7 +18,7 @@ export class TokenizerProfile {
   preferredPatterns: any[][] = [
     [ KoreanPos.Noun, KoreanPos.Josa ],
     [ KoreanPos.ProperNoun, KoreanPos.Josa ],
-  ],
+  ];
   spaceGuide: number[] = [];
   spaceGuidePenalty: number = 3.0;
 }
