@@ -183,7 +183,7 @@ export function conjugatePredicated(words: string[] | Set<string>, isAdjective: 
       );
     }
     // 놓다
-    else if(lastCoda === "ㅎ") {
+    else if(lastVowel === "ㅗ" && lastCoda === "ㅎ") {
       expandedLast = [].concat(
         addPreEomi(lastChar, [].concat(PRE_EOMI_2, PRE_EOMI_6)),
         CODAS_COMMON.map(coda => composeHangul(lastOnset, "ㅗ", coda)),
@@ -215,12 +215,12 @@ export function conjugatePredicated(words: string[] | Set<string>, isAdjective: 
     // 부여잡다, 얻어맞다, 얻어먹다
     else { expandedLast = [ lastChar ]; }
 
-    expanded.push.apply(expandedLast.map(l => init + l));
+    expanded.push.apply(expanded, expandedLast.map(l => init + l));
   }
 
   const expandedSet = new Set(expanded);
 
-  if(isAdjective) {
+  if(!isAdjective) {
     expandedSet.delete("아니");
     expandedSet.delete("입");
     expandedSet.delete("입니");

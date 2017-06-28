@@ -13,11 +13,15 @@ function matchGoldenset(predicate, newExpanded, examples) {
   for(const word of prevSet) if(!newExpanded.has(word)) prevOnly.push(word);
   for(const word of newExpanded) if(!prevSet.has(word)) newOnly.push(word);
 
-  console.error(`${predicate}:`);
-  console.error(`  Previous Only: ${prevOnly.sort().join(", ")}`);
-  console.error(`  New Only: ${newOnly.sort().join(", ")}`);
+  const ok = prevOnly.length === 0 && newOnly.length === 0;
 
-  return prevOnly.length === 0 && newOnly.length === 0;
+  if(!ok) {
+    console.error(`${predicate}:`);
+    console.error(`  Previous Only: ${prevOnly.sort().join(", ")}`);
+    console.error(`  New Only: ${newOnly.sort().join(", ")}`);
+  }
+
+  return ok;
 }
 
 function assertConjugations(filename, isAdjective) {
@@ -29,9 +33,9 @@ function assertConjugations(filename, isAdjective) {
 
   assert(loaded.reduce((output, [predicate, goldensetExpanded]) => matchGoldenset(
     predicate,
-    conjugatePredicated(predicate, isAdjective),
+    conjugatePredicated([ predicate ], isAdjective),
     goldensetExpanded
-  ), true));
+  ) && output, true));
 }
 
 describe("util/KoreanConjugation", function() {
