@@ -1,7 +1,5 @@
 const assert = require("assert");
-
-const Hangul = require("../../build/util/Hangul");
-const { decomposeHangul, hasCoda, composeHangul } = Hangul;
+const { decomposeHangul, hasCoda, composeHangul } = require("../../build/util/Hangul");
 
 describe("util/Hangul", function() {
   describe("#decomposeHangul()", function() {

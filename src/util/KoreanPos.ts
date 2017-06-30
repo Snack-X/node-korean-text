@@ -82,7 +82,7 @@ const shortCut: { [k: string]: KoreanPos; } = {
   "o": KoreanPos.Others,
 };
 
-interface KoreanPosTrie {
+export interface KoreanPosTrie {
   curPos: KoreanPos,
   nextTrie: KoreanPosTrie[],
   ending?: KoreanPos,

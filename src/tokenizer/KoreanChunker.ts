@@ -2,7 +2,7 @@ import * as TwitterText from "twitter-text";
 import { KoreanPos } from "../util/KoreanPos";
 import { KoreanToken } from "./KoreanTokenizer";
 
-interface KoreanChunk {
+export interface KoreanChunk {
   text: string,
   offset: number,
   length: number,

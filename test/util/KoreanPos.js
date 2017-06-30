@@ -1,7 +1,5 @@
 const assert = require("assert");
-
-const _KoreanPos = require("../../build/util/KoreanPos");
-const { KoreanPos, buildTrie, selfNode } = _KoreanPos;
+const { KoreanPos, buildTrie, selfNode } = require("../../build/util/KoreanPos");
 
 describe("util/KoreanPos", function() {
   describe("#buildTrie()", function() {

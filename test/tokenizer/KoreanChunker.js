@@ -1,10 +1,5 @@
 const assert = require("assert");
-
-const KoreanChunker = require("../../build/tokenizer/KoreanChunker");
-const { getChunks, chunk } = KoreanChunker;
-
-// console.log("[" + getChunks("한국어와 English와 1234와 pic.twitter.com http://news.kukinews.com/article/view.asp?page=1&gCode=soc&arcid=0008599913&code=41121111 hohyonryu@twitter.com 갤럭시 S5").join("]\n[") + "]");
-// process.exit(0);
+const { getChunks, chunk } = require("../../build/tokenizer/KoreanChunker");
 
 describe("tokenizer/KoreanChunker", function() {
   describe("#getChunks()", function() {

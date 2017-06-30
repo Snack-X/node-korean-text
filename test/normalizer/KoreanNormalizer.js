@@ -1,7 +1,5 @@
 const assert = require("assert");
-
-const KoreanNormalizer = require("../../build/normalizer/KoreanNormalizer");
-const { normalize, normalizeCodaN, correctTypo } = KoreanNormalizer;
+const { normalize, normalizeCodaN, correctTypo } = require("../../build/normalizer/KoreanNormalizer");
 
 describe("normalizer/KoreanNormalizer", function() {
   describe("#normalize()", function() {

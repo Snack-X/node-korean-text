@@ -1,5 +1,8 @@
-import { KoreanPos, getTrie } from "../util/KoreanPos";
+import { koreanDictionary } from "../util/KoreanDictionary";
+import { KoreanPos, KoreanPosTrie, getTrie } from "../util/KoreanPos";
+import { chunk } from "./KoreanChunker";
 import { TokenizerProfile, defaultProfile } from "./TokenizerProfile";
+import { ParsedChunk } from "./ParsedChunk";
 
 /**
  * Provides Korean tokenization.
@@ -87,6 +90,16 @@ export class KoreanToken {
   }
 }
 
+interface CandidateParse {
+  parse: ParsedChunk,
+  curTrie: KoreanPosTrie[],
+  ending?: KoreanPos,
+};
+
+function CandidateParse(parse: ParsedChunk, curTrie: KoreanPosTrie[], ending?: KoreanPos) {
+  return { parse, curTrie, ending };
+}
+
 /**
  * Parse Korean text into a sequence of KoreanTokens with custom parameters
  */
@@ -98,5 +111,47 @@ export function tokenize(text: string, profile: TokenizerProfile = defaultProfil
  * Parse Korean text into a sequence of KoreanTokens with custom parameters
  */
 export function tokenizeTopN(text: string, topN: number = 1, profile: TokenizerProfile = defaultProfile): KoreanToken[][][] {
+  return chunk(text).map(token => {
+    if(token.pos === KoreanPos.Korean) {
+      const parsed = parseKoreanChunk(token, profile, topN);
+      return parsed;
+    }
+    else {
+      return [[ token ]];
+    }
+  });
+}
+
+/**
+ * Find the best parse using dynamic programming.
+ */
+function parseKoreanChunk(chunk: KoreanToken, profile: TokenizerProfile = defaultProfile, topN: number = 1): KoreanToken[][] {
+  return findTopCandidates(chunk, profile).slice(0, topN);
+}
+
+function findTopCandidates(chunk: KoreanToken, profile: TokenizerProfile): KoreanToken[][] {
+  const directMatch = findDirectMatch(chunk);
+
+  // Buffer for solutions
+  const solutions: Map<number, CandidateParse[]> = new Map();
+
+  // Initial state
+  solutions.set(0, [ CandidateParse(new ParsedChunk([], 1, profile), koreanPosTrie) ]);
+
+  // Find N best parsed per state
+
   return [];
 }
+
+function findDirectMatch(chunk: KoreanToken): KoreanToken[][] {
+  // Direct match
+  // This may produce 하 -> PreEomi
+  koreanDictionary.forEach((dict, pos) => {
+    if(dict.has(chunk.text)) {
+      return [[ chunk.copyWithNewPos(pos) ]];
+    }
+  });
+
+  return [];
+}
+
