@@ -57,9 +57,8 @@ export class ParsedChunk {
                .length === 0 ? 0 : 1;
   }
   get isPreferredPattern(): number {
-    // TODO: array can't be searched with Array#indexOf() nor Set#has()
     return this.posNodes.length === 2 &&
-           this.profile.preferredPatterns.indexOf(this.posNodes.map(p => p.pos)) !== -1 ? 0 : 1;
+           this.profile.isPreferredPattern(this.posNodes.map(p => p.pos)) ? 0 : 1;
   }
   get isNounHa(): number {
     return this.posNodes.length >= 2 &&
@@ -81,6 +80,10 @@ export class ParsedChunk {
         output + 1,
       0) / this.posNodes.length
     );
+  }
+
+  add(that: ParsedChunk): ParsedChunk {
+    return new ParsedChunk([...this.posNodes, ...that.posNodes], this.words + that.words, this.profile);
   }
 
   countPos(pos: KoreanPos): number {

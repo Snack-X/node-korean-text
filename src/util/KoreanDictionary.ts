@@ -104,3 +104,20 @@ typoDictionary.forEach((v, k) => {
   
   typoDictionaryByLength.get(k.length).set(k, v);
 });
+
+function getConjugationMap(words: Set<string>, isAdjective: boolean): Map<string, string> {
+  const map = new Map<string, string>();
+
+  for(const [ word, _ ] of words.entries()) {
+    const predicated = conjugatePredicated([ word ], isAdjective);
+    for(const [ conjugated, _ ] of predicated.entries())
+      map.set(conjugated, word + "다");
+  }
+
+  return map;
+}
+
+export const predicateStems = new Map([
+  [ KoreanPos.Verb, getConjugationMap(readWords([ "verb/verb.txt" ]), false) ],
+  [ KoreanPos.Adjective, getConjugationMap(readWords([ "verb/verb.txt" ]), true) ],
+]);

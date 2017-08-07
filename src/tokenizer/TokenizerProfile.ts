@@ -15,12 +15,23 @@ export class TokenizerProfile {
   initialPostPosition: number = 0.2;
   haVerb: number = 0.3;
   preferredPattern: number = 0.6;
-  preferredPatterns: any[][] = [
+  preferredPatterns: KoreanPos[][] = [
     [ KoreanPos.Noun, KoreanPos.Josa ],
     [ KoreanPos.ProperNoun, KoreanPos.Josa ],
   ];
   spaceGuide: number[] = [];
   spaceGuidePenalty: number = 3.0;
+
+  isPreferredPattern(pattern: KoreanPos[]): boolean {
+    for(const p of this.preferredPatterns) {
+      if(p.length !== pattern.length) return false;
+
+      for(let i = 0 ; i < p.length ; i++)
+        if(p[i] !== pattern[i]) return false;
+    }
+
+    return true;
+  }
 }
 
 export const defaultProfile = new TokenizerProfile();
