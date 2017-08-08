@@ -37,39 +37,39 @@ describe("tokenizer/ParsedChunk", function() {
       1);
 
     it("should correctly count unknowns", function() {
-      assert.equal(parsedChunkWithUnknowns.countUnknowns, 2);
-      assert.equal(parsedChunk.countUnknowns, 0);
+      assert.strictEqual(parsedChunkWithUnknowns.countUnknowns, 2);
+      assert.strictEqual(parsedChunk.countUnknowns, 0);
     });
 
     it("should correctly count tokens", function() {
-      assert.equal(parsedChunk.countTokens, 3);
-      assert.equal(parsedChunkWithTwoTokens.countTokens, 2);
+      assert.strictEqual(parsedChunk.countTokens, 3);
+      assert.strictEqual(parsedChunkWithTwoTokens.countTokens, 2);
     });
 
     it("should correctly return unknown coverage", function() {
-      assert.equal(parsedChunkWithUnknowns.getUnknownCoverage, 3);
-      assert.equal(parsedChunkWithTwoTokens.getUnknownCoverage, 0);
+      assert.strictEqual(parsedChunkWithUnknowns.getUnknownCoverage, 3);
+      assert.strictEqual(parsedChunkWithTwoTokens.getUnknownCoverage, 0);
     });
 
     it("should get correct frequency score", function() {
-      assert.equal(parsedChunkWithTwoTokens.getFreqScore, 1.0);
-      assert.equal(parsedChunkWithCommonNouns.getFreqScore, 0.4544);
+      assert.strictEqual(parsedChunkWithTwoTokens.getFreqScore, 1.0);
+      assert.strictEqual(parsedChunkWithCommonNouns.getFreqScore, 0.4544);
     });
 
     it("should correctly count POSes", function() {
-      assert.equal(parsedChunk.countPos(KoreanPos.Noun), 3);
-      assert.equal(parsedChunkWithVerbs.countPos(KoreanPos.Noun), 1);
-      assert.equal(parsedChunkWithVerbs.countPos(KoreanPos.Verb), 1);
+      assert.strictEqual(parsedChunk.countPos(KoreanPos.Noun), 3);
+      assert.strictEqual(parsedChunkWithVerbs.countPos(KoreanPos.Noun), 1);
+      assert.strictEqual(parsedChunkWithVerbs.countPos(KoreanPos.Verb), 1);
     });
 
     it("should correctly determine if the chunk is an exact match", function() {
-      assert.equal(parsedChunk.isExactMatch, 1);
-      assert.equal(parsedChunkWithExactMatch.isExactMatch, 0);
+      assert.strictEqual(parsedChunk.isExactMatch, 1);
+      assert.strictEqual(parsedChunkWithExactMatch.isExactMatch, 0);
     });
 
     it("should correctly determine if the chunk is all noun", function() {
-      assert.equal(parsedChunk.isAllNouns, 0);
-      assert.equal(parsedChunkWithVerbs.isAllNouns, 1);
+      assert.strictEqual(parsedChunk.isAllNouns, 0);
+      assert.strictEqual(parsedChunkWithVerbs.isAllNouns, 1);
     });
   });
 });

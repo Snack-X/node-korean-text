@@ -5,7 +5,7 @@ describe("util/KoreanPos", function() {
   describe("#buildTrie()", function() {
     it("should build Trie correctly for initial optionals with final non-optionals", function() {
       // 0 -> 1
-      assert.deepEqual(buildTrie("m0N1", KoreanPos.Noun), [
+      assert.deepStrictEqual(buildTrie("m0N1", KoreanPos.Noun), [
         { curPos: KoreanPos.Modifier, nextTrie: [
           { curPos: KoreanPos.Noun, nextTrie: [], ending: KoreanPos.Noun }
         ], ending: null },
@@ -13,7 +13,7 @@ describe("util/KoreanPos", function() {
       ]);
 
       // * -> +
-      assert.deepEqual(buildTrie("m*N+", KoreanPos.Noun), [
+      assert.deepStrictEqual(buildTrie("m*N+", KoreanPos.Noun), [
         { curPos: KoreanPos.Modifier, nextTrie: [
           selfNode,
           { curPos: KoreanPos.Noun, nextTrie: [ selfNode ], ending: KoreanPos.Noun }
@@ -24,7 +24,7 @@ describe("util/KoreanPos", function() {
 
     it("should build Trie correctly for initial optionals with multiple non-optionals", function() {
       // 0 -> 0 -> 1
-      assert.deepEqual(buildTrie("m0N0s1", KoreanPos.Noun), [
+      assert.deepStrictEqual(buildTrie("m0N0s1", KoreanPos.Noun), [
         { curPos: KoreanPos.Modifier, nextTrie: [
           { curPos: KoreanPos.Noun, nextTrie: [
             { curPos: KoreanPos.Suffix, nextTrie: [], ending: KoreanPos.Noun },
@@ -40,7 +40,7 @@ describe("util/KoreanPos", function() {
 
     it("should build Trie correctly for initial non-optionals with final non-optionals", function() {
       // 1 -> +
-      assert.deepEqual(buildTrie("m1N+", KoreanPos.Noun), [
+      assert.deepStrictEqual(buildTrie("m1N+", KoreanPos.Noun), [
         { curPos: KoreanPos.Modifier, nextTrie: [
           { curPos: KoreanPos.Noun, nextTrie: [
             selfNode
@@ -49,7 +49,7 @@ describe("util/KoreanPos", function() {
       ]);
 
       // + -> 1
-      assert.deepEqual(buildTrie("N+s1", KoreanPos.Noun), [
+      assert.deepStrictEqual(buildTrie("N+s1", KoreanPos.Noun), [
         { curPos: KoreanPos.Noun, nextTrie: [
           selfNode,
           { curPos: KoreanPos.Suffix, nextTrie: [], ending: KoreanPos.Noun }
@@ -59,7 +59,7 @@ describe("util/KoreanPos", function() {
 
     it("should build Trie correctly for initial non-optionals with final optionals", function() {
       // 1 -> *
-      assert.deepEqual(buildTrie("m1N*", KoreanPos.Noun), [
+      assert.deepStrictEqual(buildTrie("m1N*", KoreanPos.Noun), [
         { curPos: KoreanPos.Modifier, nextTrie: [
           { curPos: KoreanPos.Noun, nextTrie: [
             selfNode
@@ -68,7 +68,7 @@ describe("util/KoreanPos", function() {
       ]);
 
       // + -> 0
-      assert.deepEqual(buildTrie("N+s0", KoreanPos.Noun), [
+      assert.deepStrictEqual(buildTrie("N+s0", KoreanPos.Noun), [
         { curPos: KoreanPos.Noun, nextTrie: [
           selfNode,
           { curPos: KoreanPos.Suffix, nextTrie: [], ending: KoreanPos.Noun }
@@ -78,7 +78,7 @@ describe("util/KoreanPos", function() {
 
     it("should build Trie correctly for initial non-optionals with multiple non-optionals", function() {
       // + -> + -> 0
-      assert.deepEqual(buildTrie("A+V+A0", KoreanPos.Verb), [
+      assert.deepStrictEqual(buildTrie("A+V+A0", KoreanPos.Verb), [
         { curPos: KoreanPos.Adverb, nextTrie: [
           selfNode,
           { curPos: KoreanPos.Verb, nextTrie: [

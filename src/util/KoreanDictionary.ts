@@ -119,5 +119,5 @@ function getConjugationMap(words: Set<string>, isAdjective: boolean): Map<string
 
 export const predicateStems = new Map([
   [ KoreanPos.Verb, getConjugationMap(readWords([ "verb/verb.txt" ]), false) ],
-  [ KoreanPos.Adjective, getConjugationMap(readWords([ "verb/verb.txt" ]), true) ],
+  [ KoreanPos.Adjective, getConjugationMap(readWords([ "adjective/adjective.txt" ]), true) ],
 ]);
