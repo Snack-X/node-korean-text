@@ -3,7 +3,7 @@
  * This object helps analyze Korean character by consonant and vowel level.
  */
 
-interface HangulChar {
+export interface HangulChar {
   onset: string,
   vowel: string,
   coda: string,

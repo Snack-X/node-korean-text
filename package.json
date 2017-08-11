@@ -3,12 +3,13 @@
   "author": "Snack <korsnack@korsnack.kr>",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "dependencies": {
     "twitter-text": "^1.14.7"
   },
   "devDependencies": {
-    "@types/node": "^8.0.19",
+    "@types/node": "^8.0.20",
     "mocha": "^3.5.0",
     "typescript": "^2.4.2"
   },

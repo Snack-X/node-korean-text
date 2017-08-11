@@ -1,4 +1,4 @@
-class Sentence {
+export class Sentence {
   text: string;
   start: number;
   end: number;

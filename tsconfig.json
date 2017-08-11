@@ -3,6 +3,7 @@
     "rootDir": "src",
     "outDir": "build",
     "sourceMap": false,
+    "declaration": true,
     "target": "es6",
     "module": "commonjs",
     "typeRoots": [
