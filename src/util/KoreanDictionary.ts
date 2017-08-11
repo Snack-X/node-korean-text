@@ -52,7 +52,8 @@ function readFileByLineFromResources(filename: string): string[] {
 export const koreanEntityFreq = readWordFreqs("freq/entity-freq.txt.gz");
 
 export function addWordsToDictionary(pos: KoreanPos, words: string[]) {
-  words.forEach(word => koreanDictionary.get(pos).add(word));
+  const dict = koreanDictionary.get(pos);
+  words.forEach(word => dict.add(word));
 }
 
 export const koreanDictionary = new Map([

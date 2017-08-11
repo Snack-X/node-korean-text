@@ -1,4 +1,5 @@
 import * as KoreanNormalizer from "./normalizer/KoreanNormalizer";
+import * as KoreanTokenizer from "./tokenizer/KoreanTokenizer";
 import { KoreanPos } from "./util/KoreanPos";
 import * as KoreanDictionary from "./util/KoreanDictionary";
 
@@ -7,6 +8,13 @@ import * as KoreanDictionary from "./util/KoreanDictionary";
  */
 export function normalize(text: string): string {
   return KoreanNormalizer.normalize(text);
+}
+
+/**
+ * Tokenize with the builder options.
+ */
+export function tokenize(text: string): KoreanTokenizer.KoreanToken[] {
+  return KoreanTokenizer.tokenize(text);
 }
 
 /**

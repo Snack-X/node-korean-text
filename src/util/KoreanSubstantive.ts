@@ -81,6 +81,5 @@ export function collapseNouns(posNodes: KoreanToken[]): KoreanToken[] {
     }
   }
 
-  nodes.reverse();
-  return nodes;
+  return nodes.reverse();
 }

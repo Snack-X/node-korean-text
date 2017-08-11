@@ -1,26 +1,50 @@
 import { KoreanPos } from "../util/KoreanPos";
 
-// Lower score is better
-export class TokenizerProfile {
-  tokenCount: number = 0.18;
-  unknown: number = 0.3;
-  wordCount: number = 0.3;
-  freq: number = 0.2;
-  unknownCoverage: number = 0.5;
-  exactMatch: number = 0.5;
-  allNoun: number = 0.1;
-  unknownPosCount: number = 10.0;
-  determinerPosCount: number = -0.01;
-  exclamationPosCount: number = 0.01;
-  initialPostPosition: number = 0.2;
-  haVerb: number = 0.3;
-  preferredPattern: number = 0.6;
-  preferredPatterns: KoreanPos[][] = [
+const defaultValue = {
+  tokenCount: 0.18,
+  unknown: 0.3,
+  wordCount: 0.3,
+  freq: 0.2,
+  unknownCoverage: 0.5,
+  exactMatch: 0.5,
+  allNoun: 0.1,
+  unknownPosCount: 10.0,
+  determinerPosCount: -0.01,
+  exclamationPosCount: 0.01,
+  initialPostPosition: 0.2,
+  haVerb: 0.3,
+  preferredPattern: 0.6,
+  preferredPatterns: [
     [ KoreanPos.Noun, KoreanPos.Josa ],
     [ KoreanPos.ProperNoun, KoreanPos.Josa ],
-  ];
-  spaceGuide: number[] = [];
-  spaceGuidePenalty: number = 3.0;
+  ],
+  spaceGuide: [],
+  spaceGuidePenalty: 3.0,
+};
+
+// Lower score is better
+export class TokenizerProfile {
+  tokenCount: number;
+  unknown: number;
+  wordCount: number;
+  freq: number;
+  unknownCoverage: number;
+  exactMatch: number;
+  allNoun: number;
+  unknownPosCount: number;
+  determinerPosCount: number;
+  exclamationPosCount: number;
+  initialPostPosition: number;
+  haVerb: number;
+  preferredPattern: number;
+  preferredPatterns: KoreanPos[][];
+  spaceGuide: number[];
+  spaceGuidePenalty: number;
+
+  constructor(options = {}) {
+    const profile = Object.assign({}, defaultValue, options);
+    for(const key in defaultValue) this[key] = profile[key];
+  }
 
   isPreferredPattern(pattern: KoreanPos[]): boolean {
     for(const p of this.preferredPatterns) {

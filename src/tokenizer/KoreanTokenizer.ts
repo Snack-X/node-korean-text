@@ -1,10 +1,12 @@
 import { TokenizerProfile, defaultProfile } from "./TokenizerProfile";
 import { ParsedChunk } from "./ParsedChunk";
 
+import * as KoreanStemmer from "../stemmer/KoreanStemmer";
 import { chunk } from "./KoreanChunker";
 import { koreanDictionary } from "../util/KoreanDictionary";
 import { KoreanPos, KoreanPosTrie, getTrie, selfNode } from "../util/KoreanPos";
 import { isName, isKoreanNameVariation, isKoreanNumber, collapseNouns } from "../util/KoreanSubstantive";
+import { flatMap } from "../util/utils";
 
 /**
  * Provides Korean tokenization.
@@ -124,9 +126,8 @@ function PossibleTrie(curTrie: KoreanPosTrie, words: number): PossibleTrie {
  * Parse Korean text into a sequence of KoreanTokens with custom parameters
  */
 export function tokenize(text: string, profile: TokenizerProfile = defaultProfile): KoreanToken[] {
-  const tokenized = tokenizeTopN(text, 1, profile).map(tokens => tokens[0]);
-  return [];
-  // return KoreanStemmer.stem(tokenized);
+  const tokenized = flatMap(tokenizeTopN(text, 1, profile), tokens => tokens[0]);
+  return KoreanStemmer.stem(tokenized);
 }
 
 /**
@@ -154,10 +155,6 @@ function parseKoreanChunk(chunk: KoreanToken, profile: TokenizerProfile = defaul
   return findTopCandidates(chunk, profile).slice(0, topN);
 }
 
-function flatMap<T, U>(array: T[], callbackfn: (value: T, index: number, array: T[]) => U[]): U[] {
-    return [].concat(...array.map(callbackfn));
-}
-
 function findTopCandidates(chunk: KoreanToken, profile: TokenizerProfile): KoreanToken[][] {
   const directMatch = findDirectMatch(chunk);
 
@@ -176,7 +173,7 @@ function findTopCandidates(chunk: KoreanToken, profile: TokenizerProfile): Korea
 
       const candidates = flatMap(curSolutions, solution => {
         let possiblePoses: PossibleTrie[] = solution.curTrie.map(t => PossibleTrie(t, 0));
-        if(solution.ending)
+        if(typeof solution.ending !== "undefined")
           possiblePoses = possiblePoses.concat(koreanPosTrie.map(t => PossibleTrie(t, 1)));
 
         return possiblePoses.filter(t =>
@@ -223,7 +220,7 @@ function findTopCandidates(chunk: KoreanToken, profile: TokenizerProfile): Korea
     // Return the best parse of the final state
     solutions.get(chunk.length).sort((a, b) => a.parse.score - b.parse.score).map(p => p.parse.posNodes);
 
-  // Evil hacky thing to filter distinct items
+  // Workaround to filter distinct items
   const sameCandidate = (a: KoreanToken[], b: KoreanToken[]): boolean => {
     if(a.length !== b.length) return false;
     for(let i = 0 ; i < a.length ; i++) if(!a[i].equals(b[i])) return false;
@@ -239,12 +236,14 @@ function findTopCandidates(chunk: KoreanToken, profile: TokenizerProfile): Korea
 function findDirectMatch(chunk: KoreanToken): KoreanToken[][] {
   // Direct match
   // This may produce 하 -> PreEomi
+  let directMatch = [];
   koreanDictionary.forEach((dict, pos) => {
     if(dict.has(chunk.text)) {
-      return [[ chunk.copyWithNewPos(pos) ]];
+      directMatch.push(chunk.copyWithNewPos(pos));
     }
   });
 
-  return [];
+  if(directMatch.length > 0) return [[ directMatch[0] ]];
+  else return [];
 }
 

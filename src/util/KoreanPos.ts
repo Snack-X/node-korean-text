@@ -88,10 +88,11 @@ export interface KoreanPosTrie {
   ending?: KoreanPos,
 };
 
-export const selfNode: KoreanPosTrie = {
-  curPos: null,
-  nextTrie: null,
-};
+export function KoreanPosTrie(curPos: KoreanPos, nextTrie: KoreanPosTrie[], ending?: KoreanPos): KoreanPosTrie {
+  return { curPos, nextTrie, ending };
+}
+
+export const selfNode: KoreanPosTrie = KoreanPosTrie(null, []);
 
 export function buildTrie(s: string, endingPos: KoreanPos): KoreanPosTrie[] {
   const isFinal = (rest: string): boolean => {
@@ -109,10 +110,10 @@ export function buildTrie(s: string, endingPos: KoreanPos): KoreanPosTrie[] {
 
   const restTrie = buildTrie(rest, endingPos);
   switch(rule) {
-    case "+": return [ <KoreanPosTrie> { curPos: pos, nextTrie: [ selfNode, ...restTrie ], ending: end } ];
-    case "*": return [ <KoreanPosTrie> { curPos: pos, nextTrie: [ selfNode, ...restTrie ], ending: end }, ...restTrie ];
-    case "1": return [ <KoreanPosTrie> { curPos: pos, nextTrie: restTrie, ending: end } ];
-    case "0": return [ <KoreanPosTrie> { curPos: pos, nextTrie: restTrie, ending: end }, ...restTrie ];
+    case "+": return [ KoreanPosTrie(pos, [ selfNode, ...restTrie ], end) ];
+    case "*": return [ KoreanPosTrie(pos, [ selfNode, ...restTrie ], end), ...restTrie ];
+    case "1": return [ KoreanPosTrie(pos, restTrie, end) ];
+    case "0": return [ KoreanPosTrie(pos, restTrie, end), ...restTrie ];
   }
 }
 
@@ -121,5 +122,3 @@ export function getTrie(sequences: { [s: string]: KoreanPos; }): KoreanPosTrie[]
     return buildTrie(s, sequences[s])
   }));
 }
-
-const Predicates = [ KoreanPos.Verb, KoreanPos.Adjective ];
