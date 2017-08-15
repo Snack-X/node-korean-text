@@ -1,5 +1,6 @@
 const assert = require("assert");
-const { getChunks, chunk } = require("../../build/tokenizer/KoreanChunker");
+const { findAllPatterns, getChunks, getChunksByPos, chunk } = require("../../build/tokenizer/KoreanChunker");
+const { KoreanPos } = require("../../build/util/KoreanPos");
 
 describe("tokenizer/KoreanChunker", function() {
   describe("#getChunks()", function() {
@@ -93,7 +94,62 @@ describe("tokenizer/KoreanChunker", function() {
     });
   });
 
-  describe("#getChunkTokens()", function() {
+
+  describe("#getChunksByPos()", function() {
+    it("should correctly extract chunks with a POS tag", function() {
+      assert.strictEqual(
+        getChunksByPos("openkoreantext.org에서 API를 테스트 할 수 있습니다.", KoreanPos.URL).join("/"),
+        "openkoreantext.org(URL: 0, 18)"
+      );
+      
+      assert.strictEqual(
+        getChunksByPos("메일 주소 mechanickim@openkoreantext.org로 문의주시거나", KoreanPos.Email).join("/"),
+        "mechanickim@openkoreantext.org(Email: 6, 30)"
+      );
+      
+      assert.strictEqual(
+        getChunksByPos("open-korean-text 프로젝트 마스터 @nlpenguin님께 메일주시면 됩니다. :-)", KoreanPos.ScreenName).join("/"),
+        "@nlpenguin(ScreenName: 26, 10)"
+      );
+      
+      assert.strictEqual(
+        getChunksByPos("해시태그는 이렇게 생겼습니다. #나는_해적왕이_될_사나이다", KoreanPos.Hashtag).join("/"),
+        "#나는_해적왕이_될_사나이다(Hashtag: 17, 15)"
+      );
+      
+      assert.strictEqual(
+        getChunksByPos("캐쉬태그는 주식정보 트윗할 때 사용합니다. $twtr", KoreanPos.CashTag).join("/"),
+        "$twtr(CashTag: 24, 5)"
+      );
+      
+      assert.strictEqual(
+        getChunksByPos("Black action solier 출두요~!", KoreanPos.Korean).join("/"),
+        "출두요(Korean: 20, 3)"
+      );
+      
+      assert.strictEqual(
+        getChunksByPos("Black action solier 출두요~! ㅋㅋ", KoreanPos.KoreanParticle).join("/"),
+        "ㅋㅋ(KoreanParticle: 26, 2)"
+      );
+      
+      assert.strictEqual(
+        getChunksByPos("최근 발매된 게임 '13일의 금요일'은 43,000원에 스팀에서 판매중입니다.", KoreanPos.Number).join("/"),
+        "13일(Number: 11, 3)/43,000원(Number: 22, 7)"
+      );
+      
+      assert.strictEqual(
+        getChunksByPos("드래곤볼 Z", KoreanPos.Alpha).join("/"),
+        "Z(Alpha: 5, 1)"
+      );
+      
+      assert.strictEqual(
+        getChunksByPos("나의 일기장 안에 모든 말을 다 꺼내어 줄 순 없지만... 사랑한다는 말 이에요.", KoreanPos.Punctuation).join("/"),
+        "...(Punctuation: 29, 3)/.(Punctuation: 44, 1)"
+      );
+    });
+  });
+
+  describe("#chunk()", function() {
     it("should correctly find chunks with correct POS tags", function() {
       assert.strictEqual(
         chunk("한국어와 English와 1234와 pic.twitter.com " +

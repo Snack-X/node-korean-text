@@ -1,6 +1,7 @@
-import { koreanEntityFreq } from "../util/KoreanDictionary";
-import { KoreanPos } from "../util/KoreanPos";
 import { KoreanToken } from "./KoreanTokenizer";
+import { koreanEntityFreq } from "../util/KoreanDictionary";
+import { hasCoda, decomposeHangul } from "../util/Hangul";
+import { KoreanPos } from "../util/KoreanPos";
 import { TokenizerProfile, defaultProfile } from "./TokenizerProfile";
 
 /**
@@ -35,7 +36,8 @@ export class ParsedChunk {
       this.countPos(KoreanPos.Exclamation) * this.profile.exclamationPosCount +
       this.isInitialPostPosition           * this.profile.initialPostPosition +
       this.isNounHa                        * this.profile.haVerb +
-      this.hasSpaceOutOfGuide              * this.profile.spaceGuidePenalty
+      this.hasSpaceOutOfGuide              * this.profile.spaceGuidePenalty +
+      this.josaMismatched                  * this.profile.josaUnmatchedPenalty
     );
   }
 
@@ -88,5 +90,28 @@ export class ParsedChunk {
 
   countPos(pos: KoreanPos): number {
     return this.posNodes.filter(p => p.pos === pos).length;
+  }
+
+  get josaMismatched(): number {
+    let mismatched = true;
+
+    for(let idx = 0 ; idx < this.posNodes.length - 1 ; idx++) {
+      const head = this.posNodes[idx], last = this.posNodes[idx + 1];
+      if(head.pos === KoreanPos.Noun && last.pos === KoreanPos.Josa) {
+        const headLastChar = head.text[head.text.length - 1];
+        if(hasCoda(headLastChar)) {
+          const nounEnding = decomposeHangul(headLastChar);
+          mismatched = mismatched || ((nounEnding.coda !== "ㄹ" || last.text[0] === "로") || "는를다".includes(last.text));
+        }
+        else {
+          mismatched = mismatched || (last.text[0] === "으" || "은을이".includes(last.text));
+        }
+      }
+      else {
+        mismatched = mismatched || false;
+      }
+    }
+    
+    return mismatched ? 1 : 0;
   }
 }

@@ -8,46 +8,7 @@ export interface KoreanChunk {
   length: number,
 };
 
-/**
- * Split input text into Korean Chunks (어절)
- */
-
-const POS_PATTERNS = new Map([
-  [ KoreanPos.Korean, /([가-힣]+)/ ],
-  [ KoreanPos.Alpha, /([A-Za-z]+)/ ],
-  [ KoreanPos.Number, /(\$?[0-9]+(,[0-9]{3})*([/~:\.-][0-9]+)?(천|만|억|조)*(%|원|달러|위안|옌|엔|유로|등|년|월|일|회|시간|시|분|초)?)/ ],
-  [ KoreanPos.KoreanParticle, /([ㄱ-ㅣ]+)/ ],
-  [ KoreanPos.Punctuation, /([!"#$%&'()*+,\-\./:;<=>?@\[\\\]\^_`{|}~·…’]+)/ ],
-  [ KoreanPos.URL, <RegExp>TwitterText.regexen.extractUrl ],
-  [ KoreanPos.Email, /([A-Za-z0-9\.\-_]+@[A-Za-z0-9\.]+)/ ],
-  [ KoreanPos.Hashtag, <RegExp>TwitterText.regexen.validHashtag ],
-  [ KoreanPos.ScreenName, <RegExp>TwitterText.regexen.validMentionOrList ],
-  [ KoreanPos.CashTag, <RegExp>TwitterText.regexen.validCashtag ],
-]);
-
-const CHUNKING_ORDER = [ KoreanPos.URL, KoreanPos.Email, KoreanPos.ScreenName, KoreanPos.Hashtag, KoreanPos.CashTag, KoreanPos.Number, KoreanPos.Korean, KoreanPos.KoreanParticle, KoreanPos.Alpha, KoreanPos.Punctuation ];
-
-export function getChunks(input: string, keepSpace: boolean = false): string[] {
-  return chunk(input).map(c => c.text);
-}
-
-export function splitBySpaceKeepingSpace(s: string): string[] {
-  const space = /\s+/g;
-  const tokens = [];
-  let m: RegExpExecArray, index = 0;
-
-  while((m = space.exec(s)) !== null) {
-    tokens.push(s.substring(index, m.index));
-    tokens.push(m[0]);
-    index = m.index + m[0].length;
-  }
-
-  tokens.push(s.substring(index, s.length));
-
-  return tokens;
-}
-
-class ChunkMatch {
+export class ChunkMatch {
   start: number;
   end: number;
   text: string;
@@ -64,6 +25,48 @@ class ChunkMatch {
     return (that.start < this.start && that.end <= this.start) ||
       (that.start >= this.end && that.end > this.end)
   }
+}
+
+/**
+ * Split input text into Korean Chunks (어절)
+ */
+
+const POS_PATTERNS = new Map([
+  [ KoreanPos.Korean, /([가-힣]+)/ ],
+  [ KoreanPos.Alpha, /([A-Za-z]+)/ ],
+  [ KoreanPos.Number, /(\$?[0-9]+(,[0-9]{3})*([/~:\.-][0-9]+)?(천|만|억|조)*(%|원|달러|위안|옌|엔|유로|등|년|월|일|회|시간|시|분|초)?)/ ],
+  [ KoreanPos.KoreanParticle, /([ㄱ-ㅣ]+)/ ],
+  [ KoreanPos.Punctuation, /([!"#$%&'()*+,\-\./:;<=>?@\[\\\]\^_`{|}~·…’]+)/ ],
+  [ KoreanPos.URL, <RegExp>TwitterText.regexen.extractUrl ],
+  [ KoreanPos.Email, /([A-Za-z0-9\.\-_]+@[A-Za-z0-9\.]+)/ ],
+  [ KoreanPos.Hashtag, <RegExp>TwitterText.regexen.validHashtag ],
+  [ KoreanPos.ScreenName, <RegExp>TwitterText.regexen.validMentionOrList ],
+  [ KoreanPos.CashTag, <RegExp>TwitterText.regexen.validCashtag ],
+  [ KoreanPos.Space, /\s+/ ],
+]);
+
+const CHUNKING_ORDER = [ KoreanPos.URL, KoreanPos.Email, KoreanPos.ScreenName, KoreanPos.Hashtag, KoreanPos.CashTag, KoreanPos.Number, KoreanPos.Korean, KoreanPos.KoreanParticle, KoreanPos.Alpha, KoreanPos.Punctuation ];
+
+export function getChunks(input: string, keepSpace: boolean = false): string[] {
+  return chunk(input).map(c => c.text);
+}
+
+function splitBySpaceKeepingSpace(s: string): string[] {
+  const space = /\s+/g;
+  const tokens = [];
+  let m: RegExpExecArray, index = 0;
+
+  while((m = space.exec(s)) !== null) {
+    if(index < m.index) {
+      tokens.push(s.substring(index, m.index));
+    }
+    tokens.push(m[0]);
+    index = m.index + m[0].length;
+  }
+
+  tokens.push(s.substring(index, s.length));
+
+  return tokens;
 }
 
 function splitChunks(text: string): ChunkMatch[] {
@@ -84,7 +87,7 @@ function splitChunks(text: string): ChunkMatch[] {
         
         while((m = r.exec(text)) !== null) {
           const cm = new ChunkMatch(m.index, m.index + m[0].length, m[0], pos);
-          if(chunksMatched.map(c => cm.disjoint(c)).filter(r => r === false).length === 0) {
+          if(chunksMatched.filter(c => cm.disjoint(c) === false).length === 0) {
             chunksMatched.push(cm);
             matchedLen += m[0].length;
           }
@@ -97,6 +100,9 @@ function splitChunks(text: string): ChunkMatch[] {
   }
 }
 
+/**
+ * Fill in unmatched segments with given pos
+ */
 function fillInUnmatched(text: string, chunks: ChunkMatch[], pos: KoreanPos): ChunkMatch[] {
   const chunksWithForeign = [];
   let prevEnd = 0;
@@ -117,6 +123,10 @@ function fillInUnmatched(text: string, chunks: ChunkMatch[], pos: KoreanPos): Ch
   }
 
   return chunksWithForeign;
+}
+
+export function getChunksByPos(input: string, pos: KoreanPos): KoreanToken[] {
+  return chunk(input).filter(t => t.pos === pos);
 }
 
 export function chunk(input: string): KoreanToken[] {

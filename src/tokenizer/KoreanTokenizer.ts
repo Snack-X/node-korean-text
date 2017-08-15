@@ -6,7 +6,9 @@ import { chunk } from "./KoreanChunker";
 import { koreanDictionary } from "../util/KoreanDictionary";
 import { KoreanPos, KoreanPosTrie, getTrie, selfNode } from "../util/KoreanPos";
 import { isName, isKoreanNameVariation, isKoreanNumber, collapseNouns } from "../util/KoreanSubstantive";
-import { flatMap } from "../util/utils";
+import { flatMap, toStringSolution } from "../util/utils";
+
+import * as Debug from "debug";
 
 /**
  * Provides Korean tokenization.
@@ -103,7 +105,7 @@ export class KoreanToken {
   }
 }
 
-interface CandidateParse {
+export interface CandidateParse {
   parse: ParsedChunk,
   curTrie: KoreanPosTrie[],
   ending?: KoreanPos,
@@ -156,7 +158,11 @@ function parseKoreanChunk(chunk: KoreanToken, profile: TokenizerProfile = defaul
 }
 
 function findTopCandidates(chunk: KoreanToken, profile: TokenizerProfile): KoreanToken[][] {
+  const debug = Debug("tokenizer:findTopCandidates");
+  debug("Current chunk : %s", chunk);
+
   const directMatch = findDirectMatch(chunk);
+  debug("Direct match : %s", directMatch);
 
   // Buffer for solutions
   const solutions: Map<number, CandidateParse[]> = new Map();
@@ -168,6 +174,7 @@ function findTopCandidates(chunk: KoreanToken, profile: TokenizerProfile): Korea
   for(let end = 1 ; end <= chunk.length ; end++) {
     for(let start = end - 1 ; start >= Math.max(end - MAX_TRACE_BACK, 0) ; start--) {
       const word = chunk.text.slice(start, end);
+      debug("start = %d, end = %d, word = %s", start, end, word);
 
       const curSolutions = solutions.get(start);
 
@@ -204,13 +211,19 @@ function findTopCandidates(chunk: KoreanToken, profile: TokenizerProfile): Korea
         });
       });
 
+      debug("Candidates for end position %d", end);
+      debug(toStringSolution(candidates));
+
       const currentSolutions = solutions.has(end) ? solutions.get(end) : [];
 
       solutions.set(end, currentSolutions.concat(candidates).sort((a, b) => {
         const score = a.parse.score - b.parse.score;
         if(score !== 0) return score;
-        else a.parse.posTieBreaker - b.parse.posTieBreaker;
+        else return a.parse.posTieBreaker - b.parse.posTieBreaker;
       }).slice(0, TOP_N_PER_STATE));
+     
+      debug("Solutions for end position %d", end);
+      debug(toStringSolution(solutions.get(end)));
     }
   }
 

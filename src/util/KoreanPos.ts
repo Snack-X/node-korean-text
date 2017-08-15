@@ -122,3 +122,5 @@ export function getTrie(sequences: { [s: string]: KoreanPos; }): KoreanPosTrie[]
     return buildTrie(s, sequences[s])
   }));
 }
+
+export const Predicates = new Set([ KoreanPos.Verb, KoreanPos.Adjective ]);

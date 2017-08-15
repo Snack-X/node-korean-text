@@ -20,6 +20,7 @@ const defaultValue = {
   ],
   spaceGuide: [],
   spaceGuidePenalty: 3.0,
+  josaUnmatchedPenalty: 3.0,
 };
 
 // Lower score is better
@@ -40,6 +41,7 @@ export class TokenizerProfile {
   preferredPatterns: KoreanPos[][];
   spaceGuide: number[];
   spaceGuidePenalty: number;
+  josaUnmatchedPenalty: number;
 
   constructor(options = {}) {
     const profile = Object.assign({}, defaultValue, options);

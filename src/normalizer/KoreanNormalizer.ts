@@ -1,6 +1,7 @@
-import { koreanDictionary, typoDictionaryByLength } from "../util/KoreanDictionary";
-import { KoreanPos } from "../util/KoreanPos";
+import * as KoreanTokenizer from "../tokenizer/KoreanTokenizer";
 import * as Hangul from "../util/Hangul";
+import { KoreanPos, Predicates } from "../util/KoreanPos";
+import { koreanDictionary, typoDictionaryByLength } from "../util/KoreanDictionary";
 
 /**
  * Normalize Korean colloquial text
@@ -80,6 +81,10 @@ export function normalizeCodaN(chunk: string): string {
     return chunk;
   }
 
+  if(Predicates.has(KoreanTokenizer.tokenize(chunk)[0].pos)) {
+    return chunk;
+  }
+
   const hc = Hangul.decomposeHangul(lastTwoHead);
 
   const newHead = chunk.substr(0, chunk.length - 2) + Hangul.composeHangul(hc.onset, hc.vowel);
@@ -89,8 +94,7 @@ export function normalizeCodaN(chunk: string): string {
     (last === "데" || last === "가" || last === "지") &&
     koreanDictionary.get(KoreanPos.Noun).has(newHead)
   ) {
-    const mid = hc.vowel === "ㅡ" ? "은" : "인";
-    return newHead + mid + last;
+    return newHead + "인" + last;
   }
   else {
     return chunk;
